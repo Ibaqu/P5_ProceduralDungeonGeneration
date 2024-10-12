@@ -1,9 +1,8 @@
 let cols, rows;
 let grid;
-let cellSize = 10;
-let MaxTunnels = 300;
-let MaxLength = 8;
-let lastDirections = [];
+let cellSize = 10; // Size of a single tunnel cell
+let MaxTunnels = 300; // Maximum number of tunnels allowed on a map
+let MaxTunnelLength = 8; // Maximum tunnel length
 
 function setup() {
   createCanvas(800, 600);
@@ -14,51 +13,47 @@ function setup() {
 }
 
 function createMap() {
-  let map = [];
-  for (let i = 0; i < rows; i++) {
-    map[i] = [];
-    for (let j = 0; j < cols; j++) {
-      map[i][j] = 1; // Set all cells to walls initially
-    }
-  }
+  // Initialize 2D matrix for the map
+  let map = new Array(rows).fill(0).map(() => new Array(cols).fill(1));
 
-  let x = floor(random(cols));
-  let y = floor(random(rows));
-  let direction = floor(random(4));
+  // Randomly choose a starting point for the tunnel
+  let x = floor(random(1, cols - 1)); // Ensure starting x is within bounds
+  let y = floor(random(1, rows - 1)); // Ensure starting y is within bounds
 
   for (let i = 0; i < MaxTunnels; i++) {
-    for (let j = 0; j < MaxLength; j++) {
-      if (x < 1 || x >= cols - 1 || y < 1 || y >= rows - 1) {
-        break;
-      }
-      map[y][x] = 0; // Set the current cell to floor
+    let length = 0; // Initialize current tunnel length
 
-      let nextDirection;
-      do {
-        nextDirection = floor(random(4)); // Choose a random direction
-      } while (nextDirection === oppositeDirection(direction) || nextDirection === direction);
+    while (length < MaxTunnelLength) {
+      // Choose a random direction
+      let nextDirection = floor(random(4)); 
 
-      lastDirections.push(nextDirection);
+      // Check the new position based on the direction
+      let newX = x;
+      let newY = y;
 
       switch (nextDirection) {
-        case 0:
-          x++;
+        case 0: // Move right
+          newX++;
           break;
-        case 1:
-          x--;
+        case 1: // Move left
+          newX--;
           break;
-        case 2:
-          y++;
+        case 2: // Move down
+          newY++;
           break;
-        case 3:
-          y--;
+        case 3: // Move up
+          newY--;
           break;
       }
-    }
 
-    x = constrain(x, 1, cols - 2);
-    y = constrain(y, 1, rows - 2);
-    direction = lastDirections[lastDirections.length - 1];
+      // Check if the new position is within bounds
+      if (newX >= 1 && newX < cols - 1 && newY >= 1 && newY < rows - 1) {
+        x = newX;
+        y = newY;
+        map[y][x] = 0; // Set the current cell to floor
+        length++; // Increase the tunnel length
+      }
+    }
   }
 
   return map;
@@ -75,18 +70,5 @@ function drawMap() {
       }
       rect(j * cellSize, i * cellSize, cellSize, cellSize);
     }
-  }
-}
-
-function oppositeDirection(dir) {
-  switch (dir) {
-    case 0:
-      return 1;
-    case 1:
-      return 0;
-    case 2:
-      return 3;
-    case 3:
-      return 2;
   }
 }

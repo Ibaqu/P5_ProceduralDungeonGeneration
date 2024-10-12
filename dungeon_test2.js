@@ -1,7 +1,7 @@
 let cols, rows;
 let grid;
 let cellSize = 10;
-let MaxTunnels = 200;
+let MaxTunnels = 300;
 let MaxLength = 8;
 let lastDirections = [];
 
