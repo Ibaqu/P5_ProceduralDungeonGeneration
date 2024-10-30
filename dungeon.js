@@ -2,7 +2,6 @@ let cols, rows;
 let grid;
 let cellSize = 10; // Size of a single tunnel cell
 let MaxTunnels = 300; // Maximum number of tunnels allowed on a map
-let MaxTunnelLength = 8; // Maximum tunnel length
 
 function setup() {
   createCanvas(800, 600);
@@ -16,12 +15,17 @@ function createMap() {
   // Initialize 2D matrix for the map
   let map = new Array(rows).fill(0).map(() => new Array(cols).fill(1));
 
-  // Randomly choose a starting point for the tunnel
-  let x = floor(random(1, cols - 1)); // Ensure starting x is within bounds
-  let y = floor(random(1, rows - 1)); // Ensure starting y is within bounds
+  // Randomly choose a starting point for the tunnel within x and y bounds
+  let x = floor(random(1, cols/2 - 1));
+  let y = floor(random(1, rows/2 - 1));
 
   for (let i = 0; i < MaxTunnels; i++) {
-    let length = 0; // Initialize current tunnel length
+    let length = 0;
+    let MaxTunnelLength = floor(random(5, 9)); // Random length between 5 and 8
+
+    let tunnelType = floor(random(2, 5));
+    
+    
 
     while (length < MaxTunnelLength) {
       // Choose a random direction
@@ -50,7 +54,7 @@ function createMap() {
       if (newX >= 1 && newX < cols - 1 && newY >= 1 && newY < rows - 1) {
         x = newX;
         y = newY;
-        map[y][x] = 0; // Set the current cell to floor
+        map[y][x] = tunnelType; // Set the current cell to floor
         length++; // Increase the tunnel length
       }
     }
@@ -65,8 +69,14 @@ function drawMap() {
     for (let j = 0; j < cols; j++) {
       if (grid[i][j] === 1) {
         fill(0);
+      } else if (grid[i][j] === 2) {
+        fill(225, 0, 0);
+      } else if (grid[i][j] === 3) {
+        fill(0, 255, 0);
+      } else if (grid[i][j] === 4) {
+        fill(0, 0, 255);
       } else {
-        fill(255);
+        fill(225);
       }
       rect(j * cellSize, i * cellSize, cellSize, cellSize);
     }
