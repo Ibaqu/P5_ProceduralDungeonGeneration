@@ -16,51 +16,78 @@ function createMap() {
   let map = new Array(rows).fill(0).map(() => new Array(cols).fill(1));
 
   // Randomly choose a starting point for the tunnel within x and y bounds
-  let x = floor(random(1, cols/2 - 1));
-  let y = floor(random(1, rows/2 - 1));
+  let startX = floor(random(1, cols/2 - 1));
+  let startY = floor(random(1, rows/2 - 1));
 
+  // Start digging from the starting point
+  let MaxTunnelLength = random(5, 10);
+  digTunnel(map, startX, startY, MaxTunnelLength);
+
+  // Create multiple tunnels
   for (let i = 0; i < MaxTunnels; i++) {
-    let length = 0;
-    let MaxTunnelLength = floor(random(5, 9)); // Random length between 5 and 8
+    // Choose a random cell that is already part of a tunnel
+    let tunnelCells = getTunnelCells(map);
+    if (tunnelCells.length === 0) break;
+    let cell = random(tunnelCells);
+    let x = cell.x;
+    let y = cell.y;
 
-    let tunnelType = floor(random(2, 5));
-    
-    
+    MaxTunnelLength = random(5, 10);
 
-    while (length < MaxTunnelLength) {
-      // Choose a random direction
-      let nextDirection = floor(random(4)); 
-
-      // Check the new position based on the direction
-      let newX = x;
-      let newY = y;
-
-      switch (nextDirection) {
-        case 0: // Move right
-          newX++;
-          break;
-        case 1: // Move left
-          newX--;
-          break;
-        case 2: // Move down
-          newY++;
-          break;
-        case 3: // Move up
-          newY--;
-          break;
-      }
-
-      // Check if the new position is within bounds
-      if (newX >= 1 && newX < cols - 1 && newY >= 1 && newY < rows - 1) {
-        x = newX;
-        y = newY;
-        map[y][x] = tunnelType; // Set the current cell to floor
-        length++; // Increase the tunnel length
-      }
-    }
+    // Dig a new tunnel from the chosen cell
+    digTunnel(map, x, y, MaxTunnelLength);
   }
 
   return map;
+}
+
+// Function to dig a tunnel from a given cell
+function digTunnel(map, x, y, length) {
+  let directions = [
+    { x: 1, y: 0 }, // Right
+    { x: -1, y: 0 }, // Left
+    { x: 0, y: 1 }, // Down
+    { x: 0, y: -1 } // Up
+  ];
+
+  // Choose a random direction
+  let direction = random(directions);
+  let tunnelColor = floor(random(2, 5));
+
+  for (let i = 0; i < length; i++) {
+    // Check if the new position is within bounds
+    let newX = x + direction.x;
+    let newY = y + direction.y;
+
+    if (newX >= 1 && newX < map[0].length - 1 && newY >= 1 && newY < map.length - 1) {
+      // Check if the new position is not already part of a tunnel
+      if (map[newY][newX] === 1) {
+        // Set the current cell to floor
+        map[newY][newX] = tunnelColor;
+        x = newX;
+        y = newY;
+      } else {
+        // If the new position is already part of a tunnel, stop digging
+        break;
+      }
+    } else {
+      // If the new position is out of bounds, stop digging
+      break;
+    }
+  }
+}
+
+// Function to get all cells that are part of a tunnel
+function getTunnelCells(map) {
+  let tunnelCells = [];
+  for (let i = 0; i < map.length; i++) {
+    for (let j = 0; j < map[0].length; j++) {
+      if (map[i][j] !== 1) {
+        tunnelCells.push({ x: j, y: i });
+      }
+    }
+  }
+  return tunnelCells;
 }
 
 function drawMap() {
